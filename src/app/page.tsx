@@ -1,3 +1,4 @@
+import PriceTicker from "@/components/PriceTicker";
 import CategoryNav from "@/components/CategoryNav";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
@@ -9,6 +10,7 @@ export default function Home() {
     <>
       <Navbar />
       <CategoryNav />
+      <PriceTicker />
       <main>
         <Hero />
         <PriceTrends />
