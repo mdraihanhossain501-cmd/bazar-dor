@@ -52,3 +52,14 @@ export function getBanglaDate(date: Date = new Date()): string {
     timeZone: "Asia/Dhaka",
   }).format(date);
 }
+
+export function formatDecimal(value: number): string {
+  if (Number.isInteger(value)) return formatNumber(value);
+
+  return toBn(
+    value.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  );
+}

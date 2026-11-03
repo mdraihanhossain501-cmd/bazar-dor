@@ -19,7 +19,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link
-      href={`/product/${product.id}`}
+      href={`/product/${product.slug}`}
       aria-label={`${product.nameBn} - বিস্তারিত দেখুন`}
       className="block rounded-2xl border border-base-300 bg-base-100 p-4 transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-primary"
     >
