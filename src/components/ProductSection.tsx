@@ -1,29 +1,16 @@
-import { getProducts } from "@/lib/api";
 import ProductCard from "@/components/ProductCard";
+import { formatNumber } from "@/lib/format";
+import type { Product } from "@/types/product";
 
-export default async function ProductSection() {
-  const products = await getProducts();
-
+export default function ProductSection({ products }: { products: Product[] }) {
   return (
-    <section
-      id="সব-পণ্য"
-      className="mx-auto max-w-7xl px-4 py-12"
-    >
-      <div className="mb-8">
-        <p className="mb-2 font-semibold text-green-700">
-          আমাদের পণ্যসমূহ
-        </p>
+    <section id="সব-পণ্য">
+      <h2 className="text-xl font-bold">সব পণ্য</h2>
+      <p className="mt-3 text-sm">
+        মোট {formatNumber(products.length)}টি পণ্য দেখানো হচ্ছে
+      </p>
 
-        <h2 className="text-3xl font-bold text-gray-900">
-          সব পণ্যের বাজারদর
-        </h2>
-
-        <p className="mt-2 text-gray-500">
-          নিত্যপ্রয়োজনীয় পণ্যের সর্বশেষ বাজারদর এক জায়গায় দেখুন।
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

@@ -13,6 +13,17 @@
   --color-success: #1a9951;
 
   --font-sans: var(--font-hind), system-ui, sans-serif;
+
+  --animate-ticker: ticker 100s linear infinite;
+
+  @keyframes ticker {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 body {

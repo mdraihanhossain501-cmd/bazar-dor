@@ -1,56 +1,62 @@
-import { getProducts } from "@/lib/api";
 import ProductCard from "@/components/ProductCard";
+import type { Product } from "@/types/product";
 
-export default async function PriceTrends() {
-  const products = await getProducts();
+type MoverSectionProps = {
+  title: string;
+  symbol: string;
+  symbolClass: string;
+  products: Product[];
+};
 
-  const risingProducts = products
+function MoverSection({
+  title,
+  symbol,
+  symbolClass,
+  products,
+}: MoverSectionProps) {
+  return (
+    <section>
+      <div className="mb-3 flex items-center gap-2">
+        <span className={`text-base ${symbolClass}`}>{symbol}</span>
+        <h2 className="text-xl font-bold">{title}</h2>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export default function PriceTrends({ products }: { products: Product[] }) {
+  // Biggest rise first
+  const risers = products
     .filter((product) => product.change.dir === "up")
+    .sort((a, b) => b.change.pct - a.change.pct)
     .slice(0, 6);
 
-  const fallingProducts = products
+  // Biggest fall first (falls have negative percentages)
+  const fallers = products
     .filter((product) => product.change.dir === "down")
+    .sort((a, b) => a.change.pct - b.change.pct)
     .slice(0, 6);
 
   return (
-    <section className="mx-auto max-w-7xl space-y-12 px-4 py-12">
-      {/* Rising prices */}
-      <div>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            <span className="mr-2 text-red-600">▲</span>
-            যেসব পণ্যের দাম বাড়ছে
-          </h2>
-          <p className="mt-2 text-sm text-gray-500">
-            গত দিনের তুলনায় যেসব পণ্যের দাম বেড়েছে
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {risingProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </div>
-
-      {/* Falling prices */}
-      <div>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            <span className="mr-2 text-green-600">▼</span>
-            যেসব পণ্যের দাম কমছে
-          </h2>
-          <p className="mt-2 text-sm text-gray-500">
-            গত দিনের তুলনায় যেসব পণ্যের দাম কমেছে
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {fallingProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </div>
-    </section>
+    <>
+      <MoverSection
+        title="আজ দাম বেড়েছে"
+        symbol="▲"
+        symbolClass="text-error"
+        products={risers}
+      />
+      <MoverSection
+        title="আজ দাম কমেছে"
+        symbol="▼"
+        symbolClass="text-success"
+        products={fallers}
+      />
+    </>
   );
 }
