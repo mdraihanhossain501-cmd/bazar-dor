@@ -10,6 +10,7 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
+    autoSignIn: false,
   },
 
   secret: process.env.BETTER_AUTH_SECRET,

@@ -106,13 +106,13 @@ export default function Navbar() {
       ) : (
         <div className="flex items-center gap-2">
           <Link
-            href="/sign-in"
+            href="/signin"
             className="flex h-10 items-center rounded-lg px-4 text-sm font-medium transition-colors hover:bg-base-200"
           >
             সাইন ইন
           </Link>
           <Link
-            href="/sign-up"
+            href="/signup"
             className="flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-content shadow transition-colors hover:bg-primary-strong"
           >
             সাইন আপ
