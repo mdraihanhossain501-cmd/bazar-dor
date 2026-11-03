@@ -1,135 +1,62 @@
-
-"use client";
-
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSession, updateUser, signOut } from "@/lib/auth-client";
+import SignOutButton from "@/components/SignOutButton";
+import { primaryButtonClass } from "@/components/AuthCard";
+import { requireSession } from "@/lib/session";
 
-export default function ProfilePage() {
-  const router = useRouter();
-  const { data: session, isPending } = useSession();
-
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (session?.user) {
-      setName(session.user.name || "");
-    }
-  }, [session]);
-
-  useEffect(() => {
-    if (!isPending && !session?.user) {
-      router.replace("/sign-in");
-    }
-  }, [isPending, session, router]);
-
-  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-    setError("");
-
-    try {
-      const result = await updateUser({ name: name.trim() });
-
-      if (result.error) {
-        setError(result.error.message || "Profile update failed.");
-        return;
-      }
-
-      setMessage("Profile updated successfully.");
-      router.refresh();
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    router.push("/sign-in");
-    router.refresh();
-  };
-
-  if (isPending || !session?.user) {
-    return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-gray-600">Loading profile...</p>
-      </main>
-    );
-  }
+export default async function ProfilePage() {
+  const { user } = await requireSession();
+  const initial = user.name?.trim().charAt(0).toUpperCase() || "U";
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <section className="w-full max-w-md space-y-6 rounded-xl border bg-white p-8 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            My Profile
-          </h1>
-          <p className="mt-2 text-sm text-gray-500">
-            View and update your account information.
-          </p>
-        </div>
+    <main className="mx-auto max-w-xl px-4 py-10">
+      <h1 className="text-2xl font-bold">আমার প্রোফাইল</h1>
+      <p className="mt-1 text-sm">আপনার অ্যাকাউন্টের তথ্য এখানে দেখুন।</p>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Email address
-          </label>
-          <input
-            value={session.user.email}
-            readOnly
-            className="w-full rounded-lg border bg-gray-100 p-3 text-gray-600"
-          />
-        </div>
-
-        <form onSubmit={handleUpdate} className="space-y-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Full name
-            </label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              minLength={2}
-              className="w-full rounded-lg border p-3 outline-none focus:border-green-600"
+      <section className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-base-300 bg-base-100 p-4">
+        <div className="flex min-w-0 items-center gap-4">
+          {user.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.image}
+              alt=""
+              referrerPolicy="no-referrer"
+              className="size-14 shrink-0 rounded-xl object-cover"
             />
+          ) : (
+            <span className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary text-xl font-semibold text-primary-content">
+              {initial}
+            </span>
+          )}
+
+          <div className="min-w-0">
+            <p className="truncate text-lg font-semibold">{user.name}</p>
+            <p className="truncate text-sm">{user.email}</p>
           </div>
+        </div>
 
-          {message && (
-            <p className="text-sm text-green-700">{message}</p>
-          )}
+        <SignOutButton />
+      </section>
 
-          {error && (
-            <p className="text-sm text-red-600">{error}</p>
-          )}
+      <section className="mt-4 rounded-2xl border border-base-300 bg-base-100 p-6">
+        <h2 className="font-semibold">তথ্য</h2>
 
-          <button
-            type="submit"
-            disabled={loading || !name.trim()}
-            className="w-full rounded-lg bg-green-700 p-3 font-medium text-white hover:bg-green-800 disabled:opacity-50"
-          >
-            {loading ? "Updating..." : "Update Profile"}
-          </button>
-        </form>
+        <dl className="mt-4 space-y-4">
+          <div>
+            <dt className="text-sm font-medium">নাম</dt>
+            <dd className="mt-1.5 flex h-10 items-center rounded-lg border border-base-300 bg-base-200 px-3 text-sm">
+              {user.name}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm font-medium">ইমেইল</dt>
+            <dd className="mt-1.5 flex h-10 items-center rounded-lg border border-base-300 bg-base-200 px-3 text-sm">
+              {user.email}
+            </dd>
+          </div>
+        </dl>
 
-        <button
-          onClick={handleSignOut}
-          className="w-full rounded-lg border border-red-600 p-3 font-medium text-red-600 hover:bg-red-50"
-        >
-          Logout
-        </button>
-
-        <Link
-          href="/"
-          className="block text-center text-sm text-green-700 hover:underline"
-        >
-          Back to Home
+        <Link href="/profile/update" className={`${primaryButtonClass} mt-6`}>
+          আপডেট
         </Link>
       </section>
     </main>
