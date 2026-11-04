@@ -13,7 +13,7 @@ A Bengali-language market price tracker for everyday essentials — rice, lentil
 
 ## 🌐 Live Demo
 
-- **Live site:**
+- **Live site:** https://bazar-dor-alpha-pink.vercel.app
 - **GitHub:** https://github.com/mdraihanhossain501-cmd/bazar-dor
 
 ## 📖 About
