@@ -1,50 +1,52 @@
+import { cache } from "react";
 import type { Product, Category } from "@/types/product";
 
-const BASE_URL = "https://openapi.programming-hero.com/api/bazardor";
+// Main API first, then the two backups from the assignment
+const BASE_URLS = [
+  "https://openapi.programming-hero.com/api/bazardor",
+  "https://api.api-store.workers.dev/api/bazardor",
+  "https://api.abcz.workers.dev/api/bazardor",
+];
 
-export async function getProducts(
-  category?: string
-): Promise<Product[]> {
-  const url = category
-    ? `${BASE_URL}/products?category=${category}`
-    : `${BASE_URL}/products`;
+async function fetchJson<T>(path: string): Promise<T> {
+  let lastError: unknown;
 
-  const response = await fetch(url, {
-    cache: "no-store",
-  });
+  for (const baseUrl of BASE_URLS) {
+    try {
+      const response = await fetch(`${baseUrl}${path}`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(8000),
+      });
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch products");
+      if (response.ok) {
+        return (await response.json()) as T;
+      }
+
+      lastError = new Error(`Request failed with status ${response.status}`);
+    } catch (error) {
+      lastError = error;
+    }
   }
 
-  return response.json();
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Failed to fetch data");
 }
 
-export async function getCategories(): Promise<Category[]> {
-  const response = await fetch(`${BASE_URL}/categories`, {
-    cache: "no-store",
-  });
+// `cache` makes sure the same request is only made once per page load
+export const getProducts = cache(
+  async (category?: string): Promise<Product[]> => {
+    const path = category
+      ? `/products?category=${encodeURIComponent(category)}`
+      : "/products";
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch categories");
+    return fetchJson<Product[]>(path);
   }
+);
 
-  return response.json();
-}
-
-export async function getProductById(
-  id: number
-): Promise<Product> {
-  const response = await fetch(`${BASE_URL}/products/${id}`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch product details");
-  }
-
-  return response.json();
-}
+export const getCategories = cache(async (): Promise<Category[]> => {
+  return fetchJson<Category[]>("/categories");
+});
 
 export async function getProductBySlug(
   slug: string
